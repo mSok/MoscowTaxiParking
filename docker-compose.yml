@@ -6,7 +6,8 @@ volumes:
 
 services:
   app:
-    image: golang:1.13-stretch # Image page: <https://hub.docker.com/_/golang>
+    build: .
+    image: taxiparking:0.1
     working_dir: /src
     environment:
       HOME: /tmp
@@ -16,6 +17,8 @@ services:
       - /etc/group:/etc/group:ro
       - .:/src:cached
       - tmp-data:/tmp:cached
+    ports:
+      - 8080:8080
     depends_on:
       - redis
 
