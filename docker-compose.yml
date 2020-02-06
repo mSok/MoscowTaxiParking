@@ -6,12 +6,13 @@ volumes:
 
 services:
   app:
-    build: .
-    image: taxiparking:0.1
+    # build: .
+    image: golang:1.13-stretch  # taxiparking:0.1
     working_dir: /src
     environment:
       HOME: /tmp
       GOPATH: /tmp
+    command: ./MoscowTaxiParking
     volumes:
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro

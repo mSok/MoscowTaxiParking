@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"os"
+	"path"
 	"testing"
 )
 
@@ -32,6 +34,11 @@ func TestLoadFromSource(t *testing.T) {
 	if err == nil {
 		t.Error("No Error with empty source")
 	}
+	cwd, _ := os.Getwd()
+	res, _ := LoadFromSource(path.Join(cwd, "..", "data", "data-20140828T0000.json"))
+	if res != 353 {
+		t.Errorf("Error load and parse from MOCK data. Count of parsed %d ", res)
+	}
 }
 
 func TestUnpack(t *testing.T) {
@@ -45,5 +52,13 @@ func TestUnpack(t *testing.T) {
 	if (*recs)[0].GlobalID != 1704691 {
 		t.Errorf("Error unmarshal JSON, GlobalID %d not equal source (1704691)", (*recs)[0].GlobalID)
 	}
-
+	badData := `[{
+		"system_object_id": "161",
+		"ID": 161,
+		"Name": "Парковка такси по адресу Карачаровское шоссе, дом 15"
+}]`
+	_, err = unpackRawData([]byte(badData))
+	if err == nil {
+		t.Errorf("Unpack without required fields")
+	}
 }

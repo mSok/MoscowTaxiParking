@@ -31,13 +31,13 @@ lint: ## Run app linters
 	$(DOCKER_BIN) run --rm -t -v $(shell pwd):/app -w /app golangci/golangci-lint:latest-alpine golangci-lint run -v
 
 gotest: ## Run app tests
-	$(DC_BIN) run $(DC_RUN_ARGS) go test -v -race ./...
+	$(DC_BIN) run $(DC_RUN_ARGS) env testdb=1 redis=redis:6379 go test -v -race ./...
 
 test: lint gotest ## Run app tests and linters
 	@printf "\n   \e[30;42m %s \033[0m\n\n" 'All tests passed!';
 
 cover: ## Run app tests with coverage report
-	$(DC_BIN) run $(DC_RUN_ARGS) sh -c 'go test -race -covermode=atomic -coverprofile /tmp/cp.out ./... && go tool cover -html=/tmp/cp.out -o ./coverage.html'
+	$(DC_BIN) run $(DC_RUN_ARGS) sh -c 'env testdb=1 redis=redis:6379 go test -race -covermode=atomic -coverprofile /tmp/cp.out ./... && go tool cover -html=/tmp/cp.out -o ./coverage.html'
 	-sensible-browser ./coverage.html && sleep 2 && rm -f ./coverage.html
 
 run: ## Run app without building binary file

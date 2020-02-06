@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"log"
+	"strconv"
 
 	"os"
 	"testing"
@@ -42,13 +44,22 @@ var mockdata = []TaxiParking{
 // Create a test connection with Redis. Be careful, all data in the database will be reset.
 // Number of db for test, pass in env testdb=...
 func connectToTest() *DBClient {
-	addr := os.Getenv("addr")
-	password := os.Getenv("db_pass")
-	// dbNum, err := strconv.Atoi(os.Getenv("testdb"))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	dbNum := 1
+	addr := os.Getenv("redis")
+	password := os.Getenv("password")
+	var (
+		dbNum int
+		err   error
+	)
+	if os.Getenv("testdb") == "" {
+		dbNum = 0
+	} else {
+		dbNum, err = strconv.Atoi(os.Getenv("testdb"))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
 	dbredis := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
@@ -80,25 +91,48 @@ func TestBulkInsert(t *testing.T) {
 	client.db.FlushDB()
 }
 
-func TestGetersParkingTaxi(t *testing.T) {
+func TestGetParkingTaxiById(t *testing.T) {
 	client := connectToTest()
 	client.BulkInsert(&mockdata)
 	res, _ := client.GetTaxiParking(1704691)
 	if res != string(raw) {
 		t.Errorf("Error compare data GetTaxiParking with the source")
 	}
+	// first 1, in range with leght 1
 	resArr, _ := client.GetTaxiParkingByID(161, 1, 0)
 	if len(resArr) != 1 {
 		t.Errorf("Len of result GetTaxiParkingByID is not equal 1")
 	}
+	// first 10, in range with leght 1
 	resArr, _ = client.GetTaxiParkingByID(161, 10, 0)
 	if len(resArr) != 1 {
 		t.Errorf("Len of result GetTaxiParkingByID is not equal 1")
 	}
+	// first 1 with offset 10, in range with leght 1
 	resArr, _ = client.GetTaxiParkingByID(161, 1, 10)
 	if len(resArr) != 0 {
 		t.Errorf("Offset wrong working in GetTaxiParkingByID")
 	}
 
 	client.db.FlushDB()
+	res, _ = client.GetTaxiParking(1704691)
+	if res != "" {
+		t.Errorf("Incorrect data in emty DB")
+	}
+}
+
+func TestGetParkingTaxiByMode(t *testing.T) {
+	client := connectToTest()
+	client.BulkInsert(&mockdata)
+	// first 1, in range with leght 1
+	resArr, _ := client.GetTaxiParkingByMode("24-hours", 1, 0)
+	if len(resArr) != 1 {
+		t.Errorf("Len of result GetTaxiParkingByID is wrong")
+	}
+	// first 1 with offset 10, in range with leght 1
+	resArr, _ = client.GetTaxiParkingByMode("24-hours", 1, 10)
+	if len(resArr) != 0 {
+		t.Errorf("Len of result GetTaxiParkingByID is wrong")
+	}
+
 }

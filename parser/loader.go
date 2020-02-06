@@ -51,6 +51,9 @@ func unpackRawData(data []byte) (*[]models.TaxiParking, error) {
 		if jsonErr != nil {
 			return nil, jsonErr
 		}
+		if parking.GlobalID == 0 {
+			return nil, fmt.Errorf("Required field 'GlobalID' missing")
+		}
 		parking.Raw = r
 		parkings = append(parkings, parking)
 

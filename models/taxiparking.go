@@ -101,14 +101,14 @@ func (d *DBClient) GetTaxiParkingByID(ID int, limit int, offset int) ([]string, 
 	return d.getRangeByIds(res)
 }
 
-// GetTaxiParking return an array of json data by Mode
+// GetTaxiParkingByMode return an array of json data by Mode
 func (d *DBClient) GetTaxiParkingByMode(Mode string, limit int, offset int) ([]string, error) {
 	prefixKey, err := d.getActualPrefix()
 	if err != nil {
 		return nil, err
 	}
 	client := d.db
-	res, err := client.LRange(fmt.Sprintf("parking:id:%s:%s", prefixKey, Mode), int64(offset), int64(limit)).Result()
+	res, err := client.LRange(fmt.Sprintf("parking:mode:%s:%s", prefixKey, Mode), int64(offset), int64(limit)).Result()
 	if err != nil {
 		return nil, err
 	}
