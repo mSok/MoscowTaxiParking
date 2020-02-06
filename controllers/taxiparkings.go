@@ -31,14 +31,26 @@ var GetTaxiParkingsByID = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
-	w.Write([]byte(data))
+	_, err = w.Write([]byte(data))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // LoadTaxiParkings handler for load open data
 var LoadTaxiParkings = func(w http.ResponseWriter, r *http.Request) {
 
 	var conf = utils.GetConf()
-	go parser.LoadFromSource(conf.Source)
+	go func() {
+		cnt, err := parser.LoadFromSource(conf.Source)
+		if err != nil {
+			log.Printf("[Error] parsed data %s\n", err)
+		} else {
+			log.Printf("[LoadFromSource] loaded %d recs\n", cnt)
+		}
+
+	}()
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }

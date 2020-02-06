@@ -3,12 +3,10 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/go-redis/redis"
-
-	// "fmt"
-
 	"os"
 	"testing"
+
+	"github.com/go-redis/redis"
 )
 
 var raw = json.RawMessage(`{
@@ -65,6 +63,9 @@ func TestBulkInsert(t *testing.T) {
 	client.BulkInsert(&mockdata)
 
 	prefixKey, err := client.getActualPrefix()
+	if err != nil {
+		t.Errorf("BulkInser. getActualPrefix error %s", err)
+	}
 	if prefixKey == "" {
 		t.Errorf("BulkInsert not working. There is nothing in \"parking:keys\"")
 	}

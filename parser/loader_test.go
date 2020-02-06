@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -43,5 +42,8 @@ func TestUnpack(t *testing.T) {
 	if len((*recs)) != 1 {
 		t.Errorf("Error unmarshal JSON, lenght %d not equal 1", len((*recs)))
 	}
-	fmt.Print((*recs)[0])
+	if (*recs)[0].GlobalID != 1704691 {
+		t.Errorf("Error unmarshal JSON, GlobalID %d not equal source (1704691)", (*recs)[0].GlobalID)
+	}
+
 }

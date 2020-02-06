@@ -3,6 +3,7 @@ package parser
 import (
 	"app/models"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,6 +27,9 @@ func loadFromWeb(url string) ([]byte, error) {
 	res, getErr := parkingClient.Do(req)
 	if getErr != nil {
 		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("Error get data from %s. Status: %s", url, res.Status)
 	}
 
 	body, readErr := ioutil.ReadAll(res.Body)
@@ -58,26 +62,30 @@ func unpackRawData(data []byte) (*[]models.TaxiParking, error) {
 }
 
 // LoadFromSource load last data from source.
-// source can be a file (file path) or URL
-func LoadFromSource(source string) (*[]models.TaxiParking, error) {
+// Source can be a file (file path) or URL.
+// Function return number of parsed records and error
+func LoadFromSource(source string) (int, error) {
 	var data []byte
 	var err error
 	if strings.HasPrefix(strings.ToLower(source), "http") {
 		data, err = loadFromWeb(source)
 		if err != nil {
 			log.Printf("[Error] %s\n", err)
-			return nil, err
+			return 0, err
 		}
 	} else {
 		log.Printf("Load data from file %s", source)
 		data, err = ioutil.ReadFile(source)
 		if err != nil {
 			log.Printf("[Error] %s\n", err)
-			return nil, err
+			return 0, err
 		}
 	}
 	res, err := unpackRawData(data)
+	if err != nil {
+		return 0, err
+	}
 	client := models.GetDB()
 	client.BulkInsert(res)
-	return res, err
+	return len(*res), err
 }

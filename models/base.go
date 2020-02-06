@@ -15,7 +15,7 @@ type DBClient struct {
 }
 
 // Create DB connection
-func init() {
+func configure() {
 
 	var conf = utils.GetConf()
 
@@ -30,5 +30,8 @@ func init() {
 
 // GetDB return db singleton
 func GetDB() *DBClient {
+	if db == nil {
+		configure()
+	}
 	return db
 }
