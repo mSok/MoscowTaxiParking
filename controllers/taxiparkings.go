@@ -205,3 +205,13 @@ var LoadTaxiParkings = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
+
+// HomeHandler - handler for root
+var HomeHandler = func(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte("🚀 Service started ..."))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}

@@ -30,6 +30,7 @@ func main() {
 
 	router.HandleFunc("/api/load", controllers.LoadTaxiParkings).Methods("GET")
 	router.HandleFunc("/metrics", controllers.MetricsGetHandler).Methods("GET")
+	router.HandleFunc("/", controllers.HomeHandler).Methods("GET")
 	http.Handle("/", router)
 	conf := utils.GetConf()
 	log.Println("Listen port: ", conf.Port)
