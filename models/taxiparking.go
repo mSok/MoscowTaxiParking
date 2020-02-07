@@ -86,7 +86,7 @@ func (d *DBClient) GetTaxiParking(GlobalID int) (string, error) {
 	return client.Get(fmt.Sprintf("parking:globalid:%s:%d", prefixKey, GlobalID)).Result()
 }
 
-// GetTaxiParking return json string by ID
+// GetTaxiParkingByID return json string by Local ID
 // Since it is not clear whether the ID is unique, return an array of json data by ID
 func (d *DBClient) GetTaxiParkingByID(ID int, limit int, offset int) ([]string, error) {
 	prefixKey, err := d.getActualPrefix()
@@ -94,7 +94,9 @@ func (d *DBClient) GetTaxiParkingByID(ID int, limit int, offset int) ([]string, 
 		return nil, err
 	}
 	client := d.db
-	res, err := client.LRange(fmt.Sprintf("parking:id:%s:%d", prefixKey, ID), int64(offset), int64(limit)).Result()
+	key := fmt.Sprintf("parking:id:%s:%d", prefixKey, ID)
+	log.Printf("LRANGE key : %s", key)
+	res, err := client.LRange(key, int64(offset), int64(limit)).Result()
 	if err != nil {
 		return nil, err
 	}

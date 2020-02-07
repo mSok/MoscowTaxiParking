@@ -89,7 +89,7 @@ var MetricsGetHandler = func(w http.ResponseWriter, r *http.Request) {
 // GetTaxiParkingsByID handler for get data by id
 var GetTaxiParkingsByID = func(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	log.Printf("[GET]: %s", params["id"])
+	log.Printf("[GET]: %s, %s", r.URL.Path, params["id"])
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -107,6 +107,82 @@ var GetTaxiParkingsByID = func(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Add("Content-Type", "application/json")
 	_, err = w.Write([]byte(data))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetTaxiParkingsByLocalID handler for get data by local id
+var GetTaxiParkingsByLocalID = func(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Printf("[GET]: %s, %s limit: %s offset: %s", r.URL.Path, params["id"], params["limit"], params["offset"])
+
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	limit, offset, err := utils.ParseQueries(params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	client := models.GetDB()
+	data, err := client.GetTaxiParkingByID(id, limit, offset)
+	if err != nil && err.Error() != "redis: nil" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if data == nil || (err != nil && err.Error() == "redis: nil") {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res := "[" + strings.Join(data, ",") + "]"
+	w.Header().Add("Content-Type", "application/json")
+	_, err = w.Write([]byte(res))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetTaxiParkingsByMode handler for get data by Mode
+var GetTaxiParkingsByMode = func(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Printf("[GET]: %s, %s limit: %s offset: %s", r.URL.Path, params["mode"], params["limit"], params["offset"])
+
+	mode := params["mode"]
+	limit, offset, err := utils.ParseQueries(params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	client := models.GetDB()
+	data, err := client.GetTaxiParkingByMode(mode, limit, offset)
+	if err != nil && err.Error() != "redis: nil" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if data == nil || (err != nil && err.Error() == "redis: nil") {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res := "[" + strings.Join(data, ",") + "]"
+	w.Header().Add("Content-Type", "application/json")
+	_, err = w.Write([]byte(res))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -7,7 +7,7 @@ LDFLAGS = "-s -w"
 
 DOCKER_BIN = $(shell command -v docker 2> /dev/null)
 DC_BIN = $(shell command -v docker-compose 2> /dev/null)
-DC_RUN_ARGS = --rm --user "$(shell id -u):$(shell id -g)" app
+DC_RUN_ARGS = -p 8080:8080 --rm --user "$(shell id -u):$(shell id -g)" app
 APP_NAME = $(notdir $(CURDIR))
 GO_RUN_ARGS ?=
 

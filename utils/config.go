@@ -10,9 +10,12 @@ import (
 var conf *Config
 
 // Source by default
-const defaultSource = "https://data.gov.ru/opendata/7704786030-taxiparking/data-20140828T0000.json?encoding=UTF-8"
-const defaultPort = "8080"
-const defaultRedis = "redis:6379"
+const defaultSource string = "https://data.gov.ru/opendata/7704786030-taxiparking/data-20140828T0000.json?encoding=UTF-8"
+const defaultPort string = "8080"
+const defaultRedis string = "redis:6379"
+
+// defaultLimit limit for result
+const defaultLimit int = 10
 
 // Config configuration application
 type Config struct {
